@@ -1,0 +1,50 @@
+---
+- hosts: app_vm
+  tasks:
+    - name: install nginx
+      yum:
+        name: nginx
+
+    - name: start nginx
+      service:
+        name: nginx
+        state: started
+
+    - name: install git
+      yum:
+        name: git
+
+    - name: remove files
+      file:
+        path: /var/www/html/*
+        state: absent
+
+    - name: copy the nginx config
+      copy:
+        src: static_site.cfg
+        dest: /etc/nginx/sites-available/
+ 
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted
+
+    - name: clone
+      git:
+        repo: https://github.com/diranetafen/static-website-example.git
+        version: master
+        dest: /var/www/html
+
+    - name: install haproxy
+      yum:
+        name: haproxy
+
+    - name: copy haproxy conf
+      copy:
+        src: files/haproxy.cfg
+        dest: /usr/local/etc/haproxy/
+    - name: restart ha
+      service:
+        name: haproxy
+        state: restarted
+
